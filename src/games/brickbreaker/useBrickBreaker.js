@@ -7,14 +7,29 @@ export default function useBrickBreaker() {
   const animationRef = useRef(null);
   const cleanupRef = useRef(null);
   const paddleX = useRef(0);
+  const powerupsRef = useRef([]);
+  const activePowerupsRef = useRef([]);
+  const [activePowerups, setActivePowerups] = useState([]);
+  const [fallingPowerups, setFallingPowerups] = useState([]);
+
+  const getPaddleWidth = useCallback(
+    () =>
+      activePowerupsRef.current.some((p) => p.type === "expand") ? 120 : 75,
+    []
+  );
 
   const start = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
 
+    powerupsRef.current = [];
+    activePowerupsRef.current = [];
+    setActivePowerups([]);
+    setFallingPowerups([]);
+
     const paddleHeight = 10;
     const paddleWidth = 75;
-    paddleX.current = (canvas.width - paddleWidth) / 2;
+    paddleX.current = (canvas.width - getPaddleWidth()) / 2;
 
     const ballRadius = 7;
     let x = canvas.width / 2;
@@ -70,6 +85,7 @@ export default function useBrickBreaker() {
     }
 
     function drawPaddle() {
+      const paddleWidth = getPaddleWidth();
       ctx.beginPath();
       ctx.rect(
         paddleX.current,
@@ -115,6 +131,14 @@ export default function useBrickBreaker() {
               b.status = 0;
               remaining--;
               setScore((s) => s + 1);
+              if (Math.random() < 0.3) {
+                powerupsRef.current.push({
+                  type: "expand",
+                  x: b.x + brickWidth / 2,
+                  y: b.y + brickHeight,
+                  dy: 2,
+                });
+              }
               if (remaining === 0) {
                 setGameOver(true);
                 cancelAnimationFrame(animationRef.current);
@@ -127,11 +151,39 @@ export default function useBrickBreaker() {
       return false;
     }
 
+    function drawPowerups() {
+      for (let i = powerupsRef.current.length - 1; i >= 0; i--) {
+        const p = powerupsRef.current[i];
+        p.y += p.dy;
+
+        const paddleWidth = getPaddleWidth();
+        if (
+          p.y + 8 > canvas.height - paddleHeight &&
+          p.x > paddleX.current &&
+          p.x < paddleX.current + paddleWidth
+        ) {
+          const expiresAt = Date.now() + 5000;
+          activePowerupsRef.current.push({
+            type: p.type,
+            expiresAt,
+            icon: p.icon,
+          });
+          setActivePowerups([...activePowerupsRef.current]);
+          powerupsRef.current.splice(i, 1);
+        } else if (p.y > canvas.height) {
+          powerupsRef.current.splice(i, 1);
+        }
+      }
+      setFallingPowerups([...powerupsRef.current]);
+    }
+
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawBricks();
       drawBall();
       drawPaddle();
+      drawPowerups();
+      const paddleHeight = getPaddleWidth();
       if (collisionDetection()) return;
 
       if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
@@ -151,6 +203,17 @@ export default function useBrickBreaker() {
 
       x += dx;
       y += dy;
+
+      const now = Date.now();
+      if (activePowerupsRef.current.length > 0) {
+        let changed = false;
+        activePowerupsRef.current = activePowerupsRef.current.filter((p) => {
+          if (p.expiresAt > now) return true;
+          changed = true;
+          return false;
+        });
+        if (changed) setActivePowerups([...activePowerupsRef.current]);
+      }
 
       if (rightPressed && paddleX.current < canvas.width - paddleWidth) {
         paddleX.current += 5;
@@ -184,20 +247,31 @@ export default function useBrickBreaker() {
     };
   }, [reset]);
 
-  const movePaddle = useCallback((dir) => {
-    const canvas = canvasRef.current;
-    const paddleWidth = 75;
-    const step = 20;
-    if (dir === "left") {
-      paddleX.current = Math.max(paddleX.current - step, 0);
-    }
-    if (dir === "right") {
-      paddleX.current = Math.min(
-        paddleX.current + step,
-        canvas.width - paddleWidth
-      );
-    }
-  }, []);
+  const movePaddle = useCallback(
+    (dir) => {
+      const canvas = canvasRef.current;
+      const paddleWidth = getPaddleWidth();
+      const step = 20;
+      if (dir === "left") {
+        paddleX.current = Math.max(paddleX.current - step, 0);
+      }
+      if (dir === "right") {
+        paddleX.current = Math.min(
+          paddleX.current + step,
+          canvas.width - paddleWidth
+        );
+      }
+    },
+    [getPaddleWidth]
+  );
 
-  return { canvasRef, score, gameOver, reset, movePaddle };
+  return {
+    canvasRef,
+    score,
+    gameOver,
+    reset,
+    movePaddle,
+    activePowerups,
+    fallingPowerups,
+  };
 }

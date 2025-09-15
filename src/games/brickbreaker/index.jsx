@@ -3,7 +3,15 @@ import GameHeader from '../../components/layout/GameHeader'
 import useBrickBreaker from './useBrickBreaker'
 
 export default function BrickBreakerGame({ onBack }) {
-  const { canvasRef, score, gameOver, reset, movePaddle } = useBrickBreaker()
+  const {
+    canvasRef,
+    score,
+    gameOver,
+    reset,
+    movePaddle,
+    activePowerups,
+    fallingPowerups,
+  } = useBrickBreaker()
 
   return (
     <div className="screen">
@@ -16,9 +24,37 @@ export default function BrickBreakerGame({ onBack }) {
             <p className="title-2xl accent">{score}</p>
           </div>
         </div>
+        
+           {activePowerups.length > 0 && (
+          <div className="text-center mb-6">
+            <div className="card">
+              <p className="muted">파워업</p>
+              <div className="flex justify-center gap-2 mt-2">
+                {activePowerups.map((p, i) => (
+                  <img
+                    key={i}
+                    src={p.icon}
+                    alt={p.type}
+                    className="w-6 h-6"
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
-        <div className="board-shell" style={{ width: 'fit-content' }}>
+        <div
+          className="board-shell" style={{ position: 'relative', width: 'fit-content' }}>
           <canvas ref={canvasRef} width={480} height={320} />
+          {fallingPowerups.map((p, i) => (
+            <img
+              key={i}
+              src={p.icon}
+              alt=""
+              className="w-4 h-4 absolute"
+              style={{ left: p.x - 8, top: p.y - 8 }}
+            />
+          ))}
         </div>
 
         {gameOver && (
