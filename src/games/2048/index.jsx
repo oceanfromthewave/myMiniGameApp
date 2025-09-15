@@ -5,6 +5,7 @@ import Board from './Board'
 import Controls from './Controls'
 import useSwipe from '../../hooks/useSwipe'
 import useSfx from '../../hooks/useSfx'
+import useHaptics from '../../hooks/useHaptics'
 
 export default function Game2048({ onBack }) {
   const {
@@ -22,17 +23,21 @@ export default function Game2048({ onBack }) {
   })
 
   const sfx = useSfx();
+  const haptics = useHaptics();
 
   useEffect(() => {
     const hadMerge = mergedGrid?.some(row => row.some(Boolean))
     if(hadMerge) {
       sfx.playMerge()
-      if (navigator.vibrate) navigator.vibrate(20)
+      haptics.vibrate(20)
     }
   }, [mergedGrid])
 
   useEffect(() => {
-  if (lastSpawn) sfx.playSpawn()
+  if (lastSpawn) {
+      sfx.playSpawn()
+      haptics.vibrate(12)
+    }
     }, [lastSpawn])
 
 
