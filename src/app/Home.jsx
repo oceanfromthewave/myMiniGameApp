@@ -1,6 +1,6 @@
 // src/app/Home.jsx
 import React from 'react'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Moon, SunMedium, Palette } from 'lucide-react'
 import games from './games'
 import useTheme from '../hooks/useTheme'
 
@@ -13,10 +13,13 @@ export default function Home({ onSelect }) {
           <h1 className="home-title">미니게임</h1>
           <p className="home-sub">간단하고 재미있는 게임을 즐겨보세요</p>
           <div className="row-center mt-2">
-            <button className="btn" onClick={toggleTheme} aria-label="테마 전환">
-              {theme === 'midnight' ? '선셋 테마'
-                : theme === 'sunset' ? '그래파이트 테마'
-                : '미드나이트 테마'}
+            <button className="btn btn--ghost" onClick={toggleTheme} aria-label="테마 전환">
+              {theme === 'midnight' ? <SunMedium size={16} />
+                : theme === 'sunset' ? <Palette size={16} />
+                : <Moon size={16} />}
+              {theme === 'midnight' ? '선셋'
+                : theme === 'sunset' ? '그래파이트'
+                : '미드나이트'}
             </button>
           </div>
         </div>

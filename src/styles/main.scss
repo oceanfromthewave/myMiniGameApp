@@ -123,7 +123,7 @@ body {
   gap: 8px;
   padding: 10px 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  border-radius: 9999px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
   color: #e5e7eb;
   box-shadow: 0 4px 14px rgba(2, 6, 23, 0.35);
@@ -170,10 +170,17 @@ body {
 .absolute { position: absolute; }
 
 .btn--primary {
-  background: linear-gradient(180deg, #16a34a, #0f9a45);
+  background: linear-gradient(180deg, rgba(22, 163, 74, 0.9), rgba(15, 154, 69, 0.9));
   color: #fff;
   border-color: rgba(34, 197, 94, 0.35);
 }
+.btn--ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #e5e7eb;
+  backdrop-filter: blur(6px) saturate(120%);
+}
+.btn--ghost:hover { border-color: rgba(255, 255, 255, 0.28); }
 
 .btn--blue {
   background: linear-gradient(180deg, #4f46e5, #4338ca);
@@ -319,6 +326,10 @@ body {
   font-size: 28px;
   font-weight: 800;
   margin: 0;
+  background: linear-gradient(90deg, #a78bfa, #22d3ee);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .home-sub {
@@ -333,19 +344,46 @@ body {
 
 .game-card {
   width: 100%;
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.6), rgba(34, 211, 238, 0.6));
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.45), rgba(34, 211, 238, 0.45));
   border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px) saturate(120%);
   border-radius: 18px;
   padding: 24px;
   color: #fff;
   box-shadow: 0 20px 60px rgba(2, 6, 23, 0.6);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+.game-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 19px;
+  padding: 1px;
+  background: linear-gradient(90deg, rgba(124,58,237,.9), rgba(34,211,238,.9));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: borderShift 6s linear infinite;
+}
+@keyframes borderShift {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
 }
 
 .game-card:hover {
-  transform: translateY(-4px) scale(1.02);
+  transform: translateY(-3px) scale(1.02);
   box-shadow: 0 30px 80px rgba(2, 6, 23, 0.75);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+.game-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(800px 300px at 0% 0%, rgba(255,255,255,.06), transparent 60%),
+              radial-gradient(800px 300px at 100% 100%, rgba(255,255,255,.06), transparent 60%);
+  pointer-events: none;
 }
 
 .game-card__row {
