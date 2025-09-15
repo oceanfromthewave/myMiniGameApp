@@ -1,43 +1,32 @@
-import React, { useState } from 'react'
-import Home from './Home'
+import { Routes, Route, useParams, useNavigate } from 'react-router-dom'
 import games from './games'
+import Home from './Home'
 import SettingsModal from '../components/layout/SettingsModal'
-import { Settings } from 'lucide-react'
+import { useState } from 'react'
+
+function GameRoute() {
+  const { id } = useParams()
+  const nav = useNavigate()
+  const game = games.find(g => g.id === id)
+  if (!game) return null
+  const Game = game.component
+  return <Game onBack={() => nav('/')} />
+}
 
 export default function App() {
-  const [screen, setScreen] = useState('home')
   const [showSettings, setShowSettings] = useState(false)
-
-  if (screen === 'home') {
-    return (
-      <>
-        <Home onSelect={(id) => setScreen(id)} />
-        <div className="fab">
-          <button className="btn btn--primary" onClick={() => setShowSettings(true)} aria-label="설정 열기">
-            <Settings size={18} />
-            설정
-          </button>
-        </div>
-        {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
-      </>
-    )
-  }
-
-  const game = games.find((g) => g.id === screen)
-  if (game) {
-    const Game = game.component
-    return (
-      <>
-        <Game onBack={() => setScreen('home')} />
-        <div className="fab">
-          <button className="btn btn--primary" onClick={() => setShowSettings(true)} aria-label="설정 열기">
-            <Settings size={18} />
-            설정
-          </button>
-        </div>
-        {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
-      </>
-    )
-  }
-  return null
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/:id" element={<GameRoute />} />
+      </Routes>
+      <div className="fab">
+        <button className="btn btn--primary" onClick={() => setShowSettings(true)} aria-label="설정 열기">
+          설정
+        </button>
+      </div>
+      {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+    </>
+  )
 }

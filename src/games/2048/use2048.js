@@ -1,36 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
+import {
+  getHighScore,
+  getLastScore,
+  bumpHighScore,
+  setLastScore as setLastScoreStorage,
+} from "../../utils/scores";
 
 const SIZE = 4;
-const HIGH_KEY = "mgp:2048-high";
-const LAST_KEY = "mgp:2048-last";
-
-const loadHighScore = (key) => {
-  try {
-    return Number(localStorage.getItem(key)) || 0;
-  } catch {
-    return 0;
-  }
-};
-
-const saveHighScore = (key, value) => {
-  try {
-    localStorage.setItem(key, String(value));
-  } catch {}
-};
-
-const loadLastScore = (key) => {
-  try {
-    return Number(localStorage.getItem(key)) || 0;
-  } catch {
-    return 0;
-  }
-};
-
-const saveLastScore = (key, value) => {
-  try {
-    localStorage.setItem(key, String(value));
-  } catch {}
-};
 
 const emptyGrid = () =>
   Array(SIZE)
@@ -82,8 +58,8 @@ export default function use2048() {
     return b;
   });
   const [score, setScore] = useState(0);
-  const [highScore, setHighScore] = useState(() => loadHighScore(HIGH_KEY));
-  const [lastScore, setLastScore] = useState(() => loadLastScore(LAST_KEY));
+  const [highScore, setHighScoreState] = useState(() => getHighScore("2048"));
+  const [lastScore, setLastScoreState] = useState(() => getLastScore("2048"));
 
   const [gameOver, setGameOver] = useState(false);
   // lazy initializer로 함수 전달 (React가 초기 렌더에서 호출)
@@ -241,12 +217,10 @@ export default function use2048() {
 
   useEffect(() => {
     if (!gameOver) return;
-    if (score > highScore) {
-      setHighScore(score);
-      saveHighScore(HIGH_KEY, score);
-    }
-    setLastScore(score);
-    saveLastScore(LAST_KEY, score);
+    bumpHighScore("2048", score);
+    setLastScoreStorage("2048", score);
+    setHighScoreState(getHighScore("2048"));
+    setLastScoreState(score);
   }, [gameOver, score, highScore]);
 
   return {

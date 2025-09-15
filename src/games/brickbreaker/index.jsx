@@ -1,6 +1,7 @@
 import React from 'react'
 import GameHeader from '../../components/layout/GameHeader'
 import useBrickBreaker from './useBrickBreaker'
+import useVisibilityPause from '../../hooks/useVisibilityPause'
 
 export default function BrickBreakerGame({ onBack }) {
   const {
@@ -13,7 +14,11 @@ export default function BrickBreakerGame({ onBack }) {
     movePaddle,
     activePowerups,
     fallingPowerups,
+    isPaused,
+    togglePause,
   } = useBrickBreaker()
+
+  useVisibilityPause(() => { if (!isPaused) togglePause() })
 
   return (
     <div className="screen">
@@ -77,6 +82,20 @@ export default function BrickBreakerGame({ onBack }) {
             <button className="btn btn--square" onClick={() => movePaddle('right')} aria-label="오른쪽으로 이동">→</button>
           </div>
         </div>
+
+        <div className="row-center mb-4">
+          <button className="btn btn--warning btn--lg" onClick={togglePause} aria-label={isPaused ? '재생' : '일시정지'}>
+            {isPaused ? '재생' : '일시정지'}
+          </button>
+        </div>
+
+        {isPaused && !gameOver && (
+          <div className="text-center mb-4">
+            <div className="notice notice--warning">
+              <h2 className="title-xl">일시정지</h2>
+            </div>
+          </div>
+        )}
 
         <div className="info-box">
           <p className="mb-2">조작법</p>

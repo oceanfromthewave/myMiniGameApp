@@ -8,7 +8,6 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
-
   },
   "keywords": [],
   "author": "",
@@ -16,7 +15,8 @@
   "dependencies": {
     "lucide-react": "^0.544.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.9.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.0.2",

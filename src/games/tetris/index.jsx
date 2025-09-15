@@ -1,6 +1,7 @@
 import React from 'react'
 import GameHeader from '../../components/layout/GameHeader'
 import useTetris from './useTetris'
+import useVisibilityPause from '../../hooks/useVisibilityPause'
 
 export default function TetrisGame({ onBack }) {
   const {
@@ -19,6 +20,10 @@ export default function TetrisGame({ onBack }) {
     clearingRows,
     clearBlink,
   } = useTetris()
+
+  useVisibilityPause(() => {
+    if (!isPaused) togglePause()
+  })
 
   React.useEffect(() => {
     const onKey = (e) => {

@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
+import useVisibilityPause from '../../hooks/useVisibilityPause'
 import GameHeader from '../../components/layout/GameHeader'
 import use2048 from './use2048'
 import Board from './Board'
@@ -16,11 +17,14 @@ export default function Game2048({ onBack }) {
     canUndo
   } = use2048()
 
-  const swipeRef = useSwipe({
-    onSwipe: move,
-    threshold: 24,
-    preventScroll: true,
-  })
+  const [isPaused, setIsPaused] = useState(false)
+
+  const safeMove = useCallback((dir) => {
+    if (isPaused || gameOver) return
+    move(dir)
+  }, [isPaused, gameOver, move])
+
+  const swipeRef = useSwipe({ onSwipe: safeMove, threshold: 24, preventScroll: true })
 
   const sfx = useSfx();
   const haptics = useHaptics();
@@ -41,14 +45,20 @@ export default function Game2048({ onBack }) {
     }, [lastSpawn])
 
 
-  useEffect(() => {
-    const onKey = (e) => {
-      const map = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' }
-      if (map[e.key]) { e.preventDefault(); move(map[e.key]) }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [move])
+    useEffect(() => {
+      const onKey = (e) => {
+        const map = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down' }
+        if (map[e.key]) { e.preventDefault(); safeMove(map[e.key]) }
+      }
+      window.addEventListener('keydown', onKey)
+      return () => window.removeEventListener('keydown', onKey)
+    }, [safeMove])
+
+    useVisibilityPause(() => setIsPaused(true))
+
+    useEffect(() => {
+      if (isPaused) sfx.suspend?.(); else sfx.resume?.();
+    }, [isPaused, sfx])
 
   return (
     <div className="screen">
@@ -81,7 +91,7 @@ export default function Game2048({ onBack }) {
 
           {/* 컨트롤 + UNDO 버튼 */}
           <div className="hstack-4 mt-2 row-center">
-            <Controls onMove={move} />
+            <Controls onMove={safeMove} />
             <button
               type="button"
               onClick={undo}
@@ -95,11 +105,25 @@ export default function Game2048({ onBack }) {
           </div>
         </div>
 
+        <div className="row-center mb-4">
+          <button className="btn btn--warning btn--lg" onClick={() => setIsPaused(p => !p)} aria-label={isPaused ? '재생' : '일시정지'}>
+            {isPaused ? '재생' : '일시정지'}
+          </button>
+        </div>
+
         {gameOver && (
           <div className="text-center mb-4" role="status" aria-live="assertive">
             <div className="notice notice--danger">
               <h2 className="title-xl mb-2">게임 오버!</h2>
               <p>최종 점수: {score}</p>
+            </div>
+          </div>
+        )}
+
+        {isPaused && !gameOver && (
+          <div className="text-center mb-4">
+            <div className="notice notice--warning">
+              <h2 className="title-xl">일시정지</h2>
             </div>
           </div>
         )}

@@ -1,49 +1,38 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-
-const HS_KEY = "mgp:brickbreaker-high";
-const LS_KEY = "mgp:brickbreaker-last";
-
-const loadHighScore = (key) => {
-  try {
-    return Number(localStorage.getItem(key)) || 0;
-  } catch {
-    return 0;
-  }
-};
-
-const saveHighScore = (key, value) => {
-  try {
-    localStorage.setItem(key, String(value));
-  } catch {}
-};
-
-const loadLastScore = (key) => {
-  try {
-    return Number(localStorage.getItem(key)) || 0;
-  } catch {
-    return 0;
-  }
-};
-
-const saveLastScore = (key, value) => {
-  try {
-    localStorage.setItem(key, String(value));
-  } catch {}
-};
+import {
+  getHighScore,
+  getLastScore,
+  bumpHighScore,
+  setLastScore as setLastScoreStorage,
+} from "../../utils/scores";
 
 export default function useBrickBreaker() {
   const canvasRef = useRef(null);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const animationRef = useRef(null);
-  const [highScore, setHighScore] = useState(() => loadHighScore(HS_KEY));
-  const [lastScore, setLastScore] = useState(() => loadLastScore(LS_KEY));
+  const [highScore, setHighScoreState] = useState(() =>
+    getHighScore("brickbreaker")
+  );
+  const [lastScore, setLastScoreState] = useState(() =>
+    getLastScore("brickbreaker")
+  );
+  const [isPaused, setIsPaused] = useState(false);
+  const pausedRef = useRef(false);
   const cleanupRef = useRef(null);
   const paddleX = useRef(0);
   const powerupsRef = useRef([]);
   const activePowerupsRef = useRef([]);
   const [activePowerups, setActivePowerups] = useState([]);
   const [fallingPowerups, setFallingPowerups] = useState([]);
+
+  const togglePause = useCallback(() => {
+    setIsPaused((p) => {
+      const np = !p;
+      pausedRef.current = np;
+      return np;
+    });
+  }, []);
 
   const getPaddleWidth = useCallback(
     () =>
@@ -216,7 +205,13 @@ export default function useBrickBreaker() {
       drawBall();
       drawPaddle();
       drawPowerups();
-      const paddleHeight = getPaddleWidth();
+
+      if (pausedRef.current) {
+        animationRef.current = requestAnimationFrame(draw);
+        return;
+      }
+
+      const paddleWidth = getPaddleWidth();
       if (collisionDetection()) {
         powerupsRef.current = [];
         activePowerupsRef.current = [];
@@ -273,7 +268,7 @@ export default function useBrickBreaker() {
       document.removeEventListener("keydown", keyDownHandler);
       document.removeEventListener("keyup", keyUpHandler);
     };
-  }, []);
+  }, [getPaddleWidth]);
 
   const reset = useCallback(() => {
     setScore(0);
@@ -284,12 +279,10 @@ export default function useBrickBreaker() {
 
   useEffect(() => {
     if (!gameOver) return;
-    if (score > highScore) {
-      setHighScore(score);
-      saveHighScore(HS_KEY, score);
-    }
-    setLastScore(score);
-    saveLastScore(LS_KEY, score);
+    bumpHighScore("brickbreaker", score);
+    setLastScoreStorage("brickbreaker", score);
+    setHighScoreState(getHighScore("brickbreaker"));
+    setLastScoreState(score);
   }, [gameOver, score, highScore]);
 
   useEffect(() => {
@@ -327,5 +320,7 @@ export default function useBrickBreaker() {
     movePaddle,
     activePowerups,
     fallingPowerups,
+    isPaused,
+    togglePause,
   };
 }

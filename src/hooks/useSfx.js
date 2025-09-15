@@ -44,5 +44,19 @@ export default function useSfx() {
     } catch {}
   }, [enabled]);
 
-  return { enabled, playMerge, playSpawn, toggle };
+  const suspend = useCallback(async () => {
+    if (!ctx) return;
+    try {
+      await ctx.suspend();
+    } catch {}
+  }, [ctx]);
+
+  const resume = useCallback(async () => {
+    if (!ctx) return;
+    try {
+      await ctx.resume();
+    } catch {}
+  }, [ctx]);
+
+  return { enabled, playMerge, playSpawn, toggle, suspend, resume };
 }

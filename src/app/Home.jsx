@@ -1,11 +1,14 @@
-// src/app/Home.jsx
 import React from 'react'
 import { ChevronLeft, Moon, SunMedium, Palette } from 'lucide-react'
 import games from './games'
 import useTheme from '../hooks/useTheme'
+import usePwaInstall from '../hooks/usePwaInstall'
+import { useNavigate } from 'react-router-dom'
 
 export default function Home({ onSelect }) {
   const { theme, toggleTheme } = useTheme()
+  const { canInstall, install } = usePwaInstall()
+  const nav = useNavigate()
   return (
     <div className="home-screen">
       <div className="container">
@@ -26,7 +29,7 @@ export default function Home({ onSelect }) {
 
         <div className="game-cards">
           {games.map((g) => (
-            <button key={g.id} onClick={() => onSelect(g.id)} className="game-card" aria-label={`${g.title} 실행`}>
+            <button onClick={() => nav(`/${g.id}`)} className="game-card" aria-label={`${g.title} 실행`}>
               <div className="game-card__row">
                 <div className="game-card__emoji">{g.icon}</div>
                 <div className="game-card__meta">
@@ -41,6 +44,15 @@ export default function Home({ onSelect }) {
           ))}
         </div>
 
+        {canInstall && (
+          <div className="notice notice--info mt-6">
+            <div className="row-center">
+              <span className="mr-2">앱으로 설치하면 오프라인에서도 실행할 수 있어요.</span>
+              <button className="btn btn--primary" onClick={install} aria-label="앱 설치">설치</button>
+            </div>
+          </div>
+        )}
+
         <div className="home-footer mt-12">
           <p className="mb-2">더 많은 게임을 추가할게요</p>
           <div className="dots">
@@ -53,4 +65,3 @@ export default function Home({ onSelect }) {
     </div>
   )
 }
-

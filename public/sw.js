@@ -1,4 +1,4 @@
-const CACHE = "mgp-v2";
+const CACHE = "mgp-v3";
 const ASSETS = ["/", "/index.html", "/manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {
@@ -23,6 +23,10 @@ self.addEventListener("activate", (e) => {
 });
 self.addEventListener("fetch", (e) => {
   const req = e.request;
+  if (req.mode === "navigate") {
+    e.respondWith(fetch(req).catch(() => caches.match("/index.html")));
+    return;
+  }
   e.respondWith(
     caches.match(req).then(
       (cached) =>
