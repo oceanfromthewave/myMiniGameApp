@@ -83,6 +83,7 @@ export default function Game2048({ onBack }) {
               disabled={!canUndo}
               className="btn"
               title="직전 한 턴을 되돌리기"
+              aria-label="되돌리기"
             >
               UNDO
             </button>
@@ -90,7 +91,7 @@ export default function Game2048({ onBack }) {
         </div>
 
         {gameOver && (
-          <div className="text-center mb-4">
+          <div className="text-center mb-4" role="status" aria-live="assertive">
             <div className="notice notice--danger">
               <h2 className="title-xl mb-2">게임 오버!</h2>
               <p>최종 점수: {score}</p>

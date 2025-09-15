@@ -57,6 +57,7 @@ export default function BrickBreakerGame({ onBack }) {
               alt=""
               className="w-4 h-4 absolute"
               style={{ left: p.x - 8, top: p.y - 8 }}
+              aria-hidden="true"
             />
           ))}
         </div>
@@ -72,8 +73,8 @@ export default function BrickBreakerGame({ onBack }) {
 
         <div className="mb-4">
           <div className="grid-2">
-            <button className="btn btn--square" onClick={() => movePaddle('left')}>←</button>
-            <button className="btn btn--square" onClick={() => movePaddle('right')}>→</button>
+            <button className="btn btn--square" onClick={() => movePaddle('left')} aria-label="왼쪽으로 이동">←</button>
+            <button className="btn btn--square" onClick={() => movePaddle('right')} aria-label="오른쪽으로 이동">→</button>
           </div>
         </div>
 
