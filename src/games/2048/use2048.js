@@ -1,7 +1,36 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const SIZE = 4;
-const BEST_KEY = "mgp:2048-best";
+const HIGH_KEY = "mgp:2048-high";
+const LAST_KEY = "mgp:2048-last";
+
+const loadHighScore = (key) => {
+  try {
+    return Number(localStorage.getItem(key)) || 0;
+  } catch {
+    return 0;
+  }
+};
+
+const saveHighScore = (key, value) => {
+  try {
+    localStorage.setItem(key, String(value));
+  } catch {}
+};
+
+const loadLastScore = (key) => {
+  try {
+    return Number(localStorage.getItem(key)) || 0;
+  } catch {
+    return 0;
+  }
+};
+
+const saveLastScore = (key, value) => {
+  try {
+    localStorage.setItem(key, String(value));
+  } catch {}
+};
 
 const emptyGrid = () =>
   Array(SIZE)
@@ -53,13 +82,9 @@ export default function use2048() {
     return b;
   });
   const [score, setScore] = useState(0);
-  const [bestScore, setBestScore] = useState(() => {
-    try {
-      return Number(localStorage.getItem(BEST_KEY)) || 0;
-    } catch {
-      return 0;
-    }
-  });
+  const [highScore, setHighScore] = useState(() => loadHighScore(HIGH_KEY));
+  const [lastScore, setLastScore] = useState(() => loadLastScore(LAST_KEY));
+
   const [gameOver, setGameOver] = useState(false);
   // lazy initializer로 함수 전달 (React가 초기 렌더에서 호출)
   const [mergedGrid, setMergedGrid] = useState(emptyMarks);
@@ -172,30 +197,16 @@ export default function use2048() {
         setComboBonus(bonus);
         setComboFlash(Date.now());
         setScore(withBonus);
-
-        if (withBonus > bestScore) {
-          setBestScore(withBonus);
-          try {
-            localStorage.setItem(BEST_KEY, String(withBonus));
-          } catch {}
-        }
       } else {
         setCombo(0);
         setComboBonus(0);
         setScore(newScore);
-
-        if (newScore > bestScore) {
-          setBestScore(newScore);
-          try {
-            localStorage.setItem(BEST_KEY, String(newScore));
-          } catch {}
-        }
       }
 
       // 게임오버 판정
       if (!canMove(back)) setGameOver(true);
     },
-    [board, score, bestScore, gameOver, combo, canMove]
+    [board, score, gameOver, combo, canMove]
   );
 
   const reset = useCallback(() => {
@@ -228,10 +239,21 @@ export default function use2048() {
     setCanUndo(false);
   }, [undoState]);
 
+  useEffect(() => {
+    if (!gameOver) return;
+    if (score > highScore) {
+      setHighScore(score);
+      saveHighScore(HIGH_KEY, score);
+    }
+    setLastScore(score);
+    saveLastScore(LAST_KEY, score);
+  }, [gameOver, score, highScore]);
+
   return {
     board,
     score,
-    bestScore,
+    highScore,
+    lastScore,
     gameOver,
     move,
     reset,

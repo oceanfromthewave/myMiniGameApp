@@ -8,11 +8,11 @@ import useSfx from '../../hooks/useSfx'
 
 export default function Game2048({ onBack }) {
   const {
-    board, score, bestScore, gameOver,
-    move, reset, undo,             // ← undo 추가
+    board, score, highScore, lastScore , gameOver,
+    move, reset, undo,
     getTileClass, mergedGrid, lastSpawn,
     combo, comboBonus, comboFlash,
-    canUndo                        // ← canUndo 추가
+    canUndo
   } = use2048()
 
   const swipeRef = useSwipe({
@@ -54,7 +54,8 @@ export default function Game2048({ onBack }) {
           <div className="card">
             <p className="muted">점수</p>
             <p className="title-2xl accent">{score}</p>
-            <p className="muted mt-2">최고: {bestScore}</p>
+            <p className="muted mt-2">최고: {highScore}</p>
+            <p className='muted'>최근: {lastScore}</p>
           </div>
         </div>
 

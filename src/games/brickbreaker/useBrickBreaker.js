@@ -1,10 +1,43 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+const HS_KEY = "mgp:brickbreaker-high";
+const LS_KEY = "mgp:brickbreaker-last";
+
+const loadHighScore = (key) => {
+  try {
+    return Number(localStorage.getItem(key)) || 0;
+  } catch {
+    return 0;
+  }
+};
+
+const saveHighScore = (key, value) => {
+  try {
+    localStorage.setItem(key, String(value));
+  } catch {}
+};
+
+const loadLastScore = (key) => {
+  try {
+    return Number(localStorage.getItem(key)) || 0;
+  } catch {
+    return 0;
+  }
+};
+
+const saveLastScore = (key, value) => {
+  try {
+    localStorage.setItem(key, String(value));
+  } catch {}
+};
+
 export default function useBrickBreaker() {
   const canvasRef = useRef(null);
   const [score, setScore] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const animationRef = useRef(null);
+  const [highScore, setHighScore] = useState(() => loadHighScore(HS_KEY));
+  const [lastScore, setLastScore] = useState(() => loadLastScore(LS_KEY));
   const cleanupRef = useRef(null);
   const paddleX = useRef(0);
   const powerupsRef = useRef([]);
@@ -184,7 +217,12 @@ export default function useBrickBreaker() {
       drawPaddle();
       drawPowerups();
       const paddleHeight = getPaddleWidth();
-      if (collisionDetection()) return;
+      if (collisionDetection()) {
+        powerupsRef.current = [];
+        activePowerupsRef.current = [];
+        setFallingPowerups([]);
+        setActivePowerups([]);
+      }
 
       if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
         dx = -dx;
@@ -197,6 +235,10 @@ export default function useBrickBreaker() {
         } else {
           setGameOver(true);
           cancelAnimationFrame(animationRef.current);
+          powerupsRef.current = [];
+          activePowerupsRef.current = [];
+          setFallingPowerups([]);
+          setActivePowerups([]);
           return;
         }
       }
@@ -241,6 +283,16 @@ export default function useBrickBreaker() {
   }, [start]);
 
   useEffect(() => {
+    if (!gameOver) return;
+    if (score > highScore) {
+      setHighScore(score);
+      saveHighScore(HS_KEY, score);
+    }
+    setLastScore(score);
+    saveLastScore(LS_KEY, score);
+  }, [gameOver, score, highScore]);
+
+  useEffect(() => {
     reset();
     return () => {
       if (cleanupRef.current) cleanupRef.current();
@@ -268,6 +320,8 @@ export default function useBrickBreaker() {
   return {
     canvasRef,
     score,
+    highScore,
+    lastScore,
     gameOver,
     reset,
     movePaddle,

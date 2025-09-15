@@ -1,5 +1,36 @@
 import { useCallback, useEffect, useState } from "react";
 
+const HS_KEY = "mgp:tetris-high";
+const LS_KEY = "mgp:tetris-last";
+
+const loadHighScore = (key) => {
+  try {
+    return Number(localStorage.getItem(key)) || 0;
+  } catch {
+    return 0;
+  }
+};
+
+const saveHighScore = (key, value) => {
+  try {
+    localStorage.setItem(key, String(value));
+  } catch {}
+};
+
+const loadLastScore = (key) => {
+  try {
+    return Number(localStorage.getItem(key)) || 0;
+  } catch {
+    return 0;
+  }
+};
+
+const saveLastScore = (key, value) => {
+  try {
+    localStorage.setItem(key, String(value));
+  } catch {}
+};
+
 function emptyBoard() {
   return Array(20)
     .fill(null)
@@ -69,6 +100,8 @@ function rotateMatrix(mat) {
 export default function useTetris() {
   const [board, setBoard] = useState(() => emptyBoard());
   const [score, setScore] = useState(0);
+  const [highScore, setHighScore] = useState(() => loadHighScore(HS_KEY));
+  const [lastScore, setLastScore] = useState(() => loadLastScore(LS_KEY));
   const [lines, setLines] = useState(0);
   const [level, setLevel] = useState(1);
   const [currentPiece, setCurrentPiece] = useState(null);
@@ -281,6 +314,16 @@ export default function useTetris() {
     if (newLevel !== level) setLevel(newLevel);
   }, [lines, level]);
 
+  useEffect(() => {
+    if (!gameOver) return;
+    if (score > highScore) {
+      setHighScore(score);
+      saveHighScore(HS_KEY, score);
+    }
+    setLastScore(score);
+    saveLastScore(LS_KEY, score);
+  }, [gameOver, score, highScore]);
+
   const getCellClass = useCallback((value) => {
     const map = [
       "tcell-0",
@@ -298,6 +341,8 @@ export default function useTetris() {
   return {
     board,
     score,
+    highScore,
+    lastScore,
     lines,
     level,
     isPaused,

@@ -5,6 +5,8 @@ import useTetris from './useTetris'
 export default function TetrisGame({ onBack }) {
   const {
     score,
+    highScore,
+    lastScore,
     lines,
     level,
     isPaused,
@@ -43,6 +45,8 @@ export default function TetrisGame({ onBack }) {
           <div className="hud-card">
             <p className="muted-light">점수</p>
             <p>{score}</p>
+            <p className="muted-light mt-2">최고 점수: {highScore}</p>
+            <p className="muted-light">최근: {lastScore}</p>
           </div>
           <div className="hud-card">
             <p className="muted-light">레벨</p>

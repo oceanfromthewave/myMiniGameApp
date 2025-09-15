@@ -6,6 +6,8 @@ export default function BrickBreakerGame({ onBack }) {
   const {
     canvasRef,
     score,
+    highScore,
+    lastScore,
     gameOver,
     reset,
     movePaddle,
@@ -22,6 +24,8 @@ export default function BrickBreakerGame({ onBack }) {
           <div className="card">
             <p className="muted">점수</p>
             <p className="title-2xl accent">{score}</p>
+            <p className="muted mt-2">최고 점수: {highScore}</p>
+            <p className="muted">최근: {lastScore}</p>
           </div>
         </div>
         
