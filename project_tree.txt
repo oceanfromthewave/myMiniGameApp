@@ -1,0 +1,14 @@
+C:\Users\82103\Desktop\miniGamePack
+├── .git
+├── .gitignore
+├── index.html
+├── node_modules
+├── package-lock.json
+├── package.json
+├── project_tree.txt
+├── public
+├── src
+└── vite.config.mjs
+
+directory: 4 file: 6
+

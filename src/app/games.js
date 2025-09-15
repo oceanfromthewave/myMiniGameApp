@@ -1,6 +1,7 @@
 // src/app/games.js
 import Game2048 from "../games/2048";
 import TetrisGame from "../games/tetris";
+import BrickBreakerGame from "../games/brickbreaker";
 
 export default [
   {
@@ -17,5 +18,11 @@ export default [
     icon: "🧱",
     component: TetrisGame,
   },
+  {
+    id: "brickbreaker",
+    title: "벽돌깨기",
+    description: "공을 튕겨 벽돌을 모두 깨보세요!",
+    icon: "🎾",
+    component: BrickBreakerGame,
+  },
 ];
-
