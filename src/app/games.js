@@ -1,7 +1,7 @@
-// src/app/games.js
 import Game2048 from "../games/2048";
 import TetrisGame from "../games/tetris";
 import BrickBreakerGame from "../games/brickbreaker";
+import PinballGame from "../games/pinball";
 
 export default [
   {
@@ -24,5 +24,12 @@ export default [
     description: "공을 튕겨 벽돌을 모두 깨보세요!",
     icon: "🎾",
     component: BrickBreakerGame,
+  },
+  {
+    id: "pinball",
+    title: "핀볼",
+    description: "플리퍼로 공을 튕겨 점수를 획득!",
+    icon: "🕹️",
+    component: PinballGame,
   },
 ];

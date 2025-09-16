@@ -33,6 +33,41 @@ body {
               linear-gradient(180deg, #0b1220, #0f172a);
 }
 
+/* Inputs */
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  color: #e5e7eb;
+  box-shadow: 0 6px 20px rgba(2,6,23,.45), inset 0 1px 0 rgba(255,255,255,.04);
+  backdrop-filter: blur(8px) saturate(120%);
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.input::placeholder { color: #94a3b8; opacity: .9; }
+.input:hover { border-color: rgba(255,255,255,.18); }
+.input:focus-visible {
+  outline: none;
+  border-color: rgba(34, 211, 238, .5);
+  box-shadow:
+    0 10px 28px rgba(2,6,23,.6),
+    0 0 0 3px rgba(34,211,238,.18),
+    inset 0 1px 0 rgba(255,255,255,.06);
+  transform: translateY(-1px);
+}
+
+/* Nickname row 레이아웃: 라벨/인풋/버튼 정렬 */
+.form-row {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 저장 힌트 텍스트 */
+.hint { color: #94a3b8; font-size: 12px; margin-left: 72px; }
+
 .home-screen {
   min-height: 100vh;
   padding: 24px;
@@ -686,3 +721,150 @@ body {
 [data-theme="graphite"] .accent { color: #a78bfa; }
 [data-theme="graphite"] .home-sub { color: #cbd5e1; }
 [data-theme="graphite"] .home-footer { color: #a78bfa; }
+
+/* Leaderboard scoped styles */
+.lb-card { padding-top: 12px; }
+.lb-controls .btn {
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.04);
+  border-color: rgba(255,255,255,.12);
+  box-shadow: none;
+  transform: none;
+}
+.lb-controls .btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255,255,255,.18);
+  box-shadow: 0 8px 20px rgba(2,6,23,.4);
+}
+.lb-controls .btn[aria-pressed="true"] {
+  background: linear-gradient(180deg, rgba(124,58,237,.35), rgba(34,211,238,.28));
+  border-color: rgba(167,139,250,.38);
+}
+
+.lb-list { margin-top: 10px; }
+/* Leaderboard rows */
+.lb-row {
+  display: grid;
+  grid-template-columns: 1fr max-content;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+}
+.lb-row + .lb-row { margin-top: 8px; }
+.lb-row:hover { background: rgba(255,255,255,.05); }
+.lb-row--mine { background: rgba(34,211,238,.12); border-color: rgba(34,211,238,.35); }
+.lb-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.lb-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb-score { font-weight: 800; color: #a78bfa; }
+
+/* Rank badges */
+.lb-rank {
+  width: 28px; height: 28px; border-radius: 9999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 800; color: #0b1220; font-size: 12px;
+  background: #e2e8f0; border: 1px solid rgba(255,255,255,.2);
+}
+.lb-rank.gold   { background: linear-gradient(180deg, #fcd34d, #f59e0b); color: #1f2937; }
+.lb-rank.silver { background: linear-gradient(180deg, #e5e7eb, #9ca3af); color: #111827; }
+.lb-rank.bronze { background: linear-gradient(180deg, #fbbf24, #b45309); color: #1f2937; }
+
+/* LB game tabs active state */
+.lb-game-tabs .btn {
+  padding: 8px 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,.04);
+  border-color: rgba(255,255,255,.12);
+  box-shadow: none;
+}
+.lb-game-tabs .btn[aria-pressed="true"] {
+  background: linear-gradient(180deg, rgba(124,58,237,.35), rgba(34,211,238,.28));
+  border-color: rgba(167,139,250,.38);
+}
+
+/* Responsive canvas to prevent overflow and keep aspect */
+.board-shell canvas { max-width: 100%; height: auto; display: block; }
+
+/* Control area tweaks (2048 etc.) */
+.touch-area .row-center { flex-wrap: wrap; gap: 12px; }
+.touch-area .btn { min-width: 44px; min-height: 44px; }
+
+/* Pinball overlays and touch controls */
+.pinball-pause { z-index: 2; backdrop-filter: blur(6px) saturate(120%); }
+
+/* Transparent touch zones positioned over canvas */
+.pinball-touch-left,
+.pinball-touch-right,
+.pinball-touch-plunger {
+  position: absolute;
+  z-index: 1;
+  background: transparent; /* hide by default */
+  border: 0; /* no border by default */
+  border-radius: 8px;
+}
+
+/* Left/right occupy lower left/right areas */
+.pinball-touch-left { left: 8px; bottom: 8px; width: 36%; height: 34%; }
+.pinball-touch-right { right: 8px; bottom: 8px; width: 36%; height: 34%; }
+
+/* Plunger vertical zone on bottom-right side near lane */
+.pinball-touch-plunger { right: 12px; bottom: 12px; width: 40px; height: 140px; }
+
+@media (hover: hover) {
+  .pinball-touch-left:hover,
+  .pinball-touch-right:hover,
+  .pinball-touch-plunger:hover { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); }
+}
+
+/* Space-Cadet aesthetic */
+.pinball-theme .pinball-shell {
+  position: relative;
+  background: radial-gradient(240px 120px at 50% 0%, rgba(124,58,237,.18), transparent 60%),
+              radial-gradient(260px 140px at 50% 100%, rgba(34,211,238,.16), transparent 60%),
+              linear-gradient(180deg, rgba(2,6,23,.92), rgba(2,6,23,.85));
+  border: 1px solid rgba(167,139,250,.25);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.04),
+    0 20px 60px rgba(2,6,23,.85),
+    0 0 0 3px rgba(124,58,237,.12),
+    0 0 0 6px rgba(34,211,238,.08);
+}
+
+.pinball-theme .pinball-shell::after {
+  content: "";
+  position: absolute; inset: 10px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,.04), transparent 30%),
+              linear-gradient(0deg, rgba(255,255,255,.03), transparent 30%);
+  mix-blend-mode: screen;
+}
+
+.pinball-theme .pinball-shell canvas {
+  filter: saturate(110%);
+}
+
+/* subtle scanlines */
+.pinball-theme .pinball-shell::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255,255,255,.03) 0px,
+    rgba(255,255,255,.03) 1px,
+    transparent 2px,
+    transparent 3px
+  );
+  opacity: .2;
+}
+
+/* neon ghost button style for pause */
+.pinball-theme .pinball-pause {
+  border-color: rgba(124,58,237,.4);
+  background: linear-gradient(180deg, rgba(124,58,237,.25), rgba(34,211,238,.2));
+  box-shadow: 0 8px 24px rgba(2,6,23,.6), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.pinball-theme .pinball-pause:hover {
+  border-color: rgba(124,58,237,.55);
+}

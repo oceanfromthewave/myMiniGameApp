@@ -1,14 +1,19 @@
 import React from 'react'
-import { ChevronLeft, Moon, SunMedium, Palette } from 'lucide-react'
+import { ChevronLeft, Moon, SunMedium, Palette, Trophy } from 'lucide-react'
 import games from './games'
 import useTheme from '../hooks/useTheme'
 import usePwaInstall from '../hooks/usePwaInstall'
 import { useNavigate } from 'react-router-dom'
+import Leaderboard from '../components/Leaderboard'
+import LeaderboardModal from '../components/LeaderboardModal'
 
 export default function Home({ onSelect }) {
   const { theme, toggleTheme } = useTheme()
   const { canInstall, install } = usePwaInstall()
   const nav = useNavigate()
+  const [lbGame, setLbGame] = React.useState('2048')
+  const [showLb, setShowLb] = React.useState(false)
+  
   return (
     <div className="home-screen">
       <div className="container">
@@ -44,6 +49,23 @@ export default function Home({ onSelect }) {
           ))}
         </div>
 
+        <div className="mt-12">
+          <div className="hstack-4 lb-game-tabs" style={{ justifyContent: 'center' }}>
+            <button className="btn btn--ghost" onClick={() => setLbGame('2048')} aria-pressed={lbGame==='2048'}>2048</button>
+            <button className="btn btn--ghost" onClick={() => setLbGame('tetris')} aria-pressed={lbGame==='tetris'}>테트리스</button>
+            <button className="btn btn--ghost" onClick={() => setLbGame('brickbreaker')} aria-pressed={lbGame==='brickbreaker'}>벽돌깨기</button>
+            <button className="btn btn--ghost" onClick={() => setLbGame('pinball')} aria-pressed={lbGame==='pinball'}>핀볼</button>
+          </div>
+          <div className="mt-2">
+            <Leaderboard game={lbGame} compact />
+          </div>
+          <div className="row-center mt-2">
+            <button className="btn btn--ghost" onClick={() => setShowLb(true)} aria-label="리더보드 전체 보기">
+              <Trophy size={16} /> 전체보기
+            </button>
+          </div>
+        </div>
+
         {canInstall && (
           <div className="notice notice--info mt-6">
             <div className="row-center">
@@ -62,6 +84,8 @@ export default function Home({ onSelect }) {
           </div>
         </div>
       </div>
+
+      {showLb && <LeaderboardModal game={lbGame} onClose={() => setShowLb(false)} />}
     </div>
   )
 }

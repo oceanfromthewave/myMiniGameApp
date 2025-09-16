@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import useVisibilityPause from '../../hooks/useVisibilityPause'
 import GameHeader from '../../components/layout/GameHeader'
 import use2048 from './use2048'
@@ -7,6 +7,8 @@ import Controls from './Controls'
 import useSwipe from '../../hooks/useSwipe'
 import useSfx from '../../hooks/useSfx'
 import useHaptics from '../../hooks/useHaptics'
+import { saveScore } from '../../utils/leaderboard'
+import { getUsername } from '../../utils/device'
 
 export default function Game2048({ onBack }) {
   const {
@@ -18,6 +20,7 @@ export default function Game2048({ onBack }) {
   } = use2048()
 
   const [isPaused, setIsPaused] = useState(false)
+  const savedRef = useRef(false)
 
   const safeMove = useCallback((dir) => {
     if (isPaused || gameOver) return
@@ -60,6 +63,13 @@ export default function Game2048({ onBack }) {
       if (isPaused) sfx.suspend?.(); else sfx.resume?.();
     }, [isPaused, sfx])
 
+    // gameOver 시 1회만 점수 업로드
+    useEffect(() => {
+      if (!gameOver || savedRef.current) return
+      savedRef.current = true
+      saveScore({ game: '2048', score, username: getUsername() }).catch(() => {})
+    }, [gameOver, score])
+
   return (
     <div className="screen">
       <div className="container">
@@ -89,26 +99,25 @@ export default function Game2048({ onBack }) {
             lastSpawn={lastSpawn}
           />
 
-          {/* 컨트롤 + UNDO 버튼 */}
-          <div className="hstack-4 mt-2 row-center">
+          {/* 컨트롤 + UNDO + 일시정지 */}
+          <div className="hstack-4 mt-2 row-center" style={{ flexWrap: 'wrap' }}>
             <Controls onMove={safeMove} />
-            <button
-              type="button"
-              onClick={undo}
-              disabled={!canUndo}
-              className="btn"
-              title="직전 한 턴을 되돌리기"
-              aria-label="되돌리기"
-            >
-              UNDO
-            </button>
+            <div className="hstack-4">
+              <button
+                type="button"
+                onClick={undo}
+                disabled={!canUndo}
+                className="btn"
+                title="직전 한 턴을 되돌리기"
+                aria-label="되돌리기"
+              >
+                UNDO
+              </button>
+              <button className="btn" onClick={() => setIsPaused(p => !p)} aria-label={isPaused ? '재생' : '일시정지'}>
+                {isPaused ? '재생' : '일시정지'}
+              </button>
+            </div>
           </div>
-        </div>
-
-        <div className="row-center mb-4">
-          <button className="btn btn--warning btn--lg" onClick={() => setIsPaused(p => !p)} aria-label={isPaused ? '재생' : '일시정지'}>
-            {isPaused ? '재생' : '일시정지'}
-          </button>
         </div>
 
         {gameOver && (

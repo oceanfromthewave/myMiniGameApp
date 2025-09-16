@@ -2,6 +2,8 @@ import React from 'react'
 import GameHeader from '../../components/layout/GameHeader'
 import useBrickBreaker from './useBrickBreaker'
 import useVisibilityPause from '../../hooks/useVisibilityPause'
+import { saveScore } from '../../utils/leaderboard'
+import { getUsername } from '../../utils/device'
 
 export default function BrickBreakerGame({ onBack }) {
   const {
@@ -18,7 +20,15 @@ export default function BrickBreakerGame({ onBack }) {
     togglePause,
   } = useBrickBreaker()
 
+  const savedRef = React.useRef(false)
+
   useVisibilityPause(() => { if (!isPaused) togglePause() })
+
+  React.useEffect(() => {
+    if (!gameOver || savedRef.current) return
+    savedRef.current = true
+    saveScore({ game: 'brickbreaker', score, username: getUsername() }).catch(() => {})
+  }, [gameOver, score])
 
   return (
     <div className="screen">
@@ -52,8 +62,7 @@ export default function BrickBreakerGame({ onBack }) {
           </div>
         )}
 
-        <div
-          className="board-shell" style={{ position: 'relative', width: 'fit-content' }}>
+        <div className="board-shell" style={{ position: 'relative', width: 'fit-content', margin: '0 auto', maxWidth: '100%' }}>
           <canvas ref={canvasRef} width={480} height={320} />
           {fallingPowerups.map((p, i) => (
             <img

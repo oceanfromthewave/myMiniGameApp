@@ -2,6 +2,8 @@ import React from 'react'
 import GameHeader from '../../components/layout/GameHeader'
 import useTetris from './useTetris'
 import useVisibilityPause from '../../hooks/useVisibilityPause'
+import { saveScore } from '../../utils/leaderboard'
+import { getUsername } from '../../utils/device'
 
 export default function TetrisGame({ onBack }) {
   const {
@@ -21,6 +23,8 @@ export default function TetrisGame({ onBack }) {
     clearBlink,
   } = useTetris()
 
+  const savedRef = React.useRef(false)
+
   useVisibilityPause(() => {
     if (!isPaused) togglePause()
   })
@@ -38,6 +42,12 @@ export default function TetrisGame({ onBack }) {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [movePiece])
+
+  React.useEffect(() => {
+    if (!gameOver || savedRef.current) return
+    savedRef.current = true
+    saveScore({ game: 'tetris', score, username: getUsername() }).catch(() => {})
+  }, [gameOver, score])
 
   const board = renderBoard()
 
