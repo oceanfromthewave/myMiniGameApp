@@ -13,6 +13,11 @@ export default function Home({ onSelect }) {
   const nav = useNavigate()
   const [lbGame, setLbGame] = React.useState('2048')
   const [showLb, setShowLb] = React.useState(false)
+
+  const isStandalone =
+  window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   
   return (
     <div className="home-screen">
@@ -82,6 +87,16 @@ export default function Home({ onSelect }) {
     <button className="btn btn--primary btn--pill" onClick={install} aria-label="앱 설치">
       설치
     </button>
+  </div>
+)}
+
+{!canInstall && isIOS && isSafari && !isStandalone && (
+  <div className="install-card">
+    <div className="install-icon"></div>
+    <div className="install-content">
+      <p className="title-md">iOS에서 설치하려면</p>
+      <p className="muted-light">공유 버튼 → “홈 화면에 추가”를 눌러주세요.</p>
+    </div>
   </div>
 )}
 
