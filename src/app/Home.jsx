@@ -33,8 +33,13 @@ export default function Home({ onSelect }) {
         </div>
 
         <div className="game-cards">
-          {games.map((g) => (
-            <button onClick={() => nav(`/${g.id}`)} className="game-card" aria-label={`${g.title} 실행`}>
+        {games.map((g) => (
+            <button
+              key={g.id}
+              onClick={() => nav(`/${g.id}`)}
+              className="game-card"
+              aria-label={`${g.title} 실행`}
+            >
               <div className="game-card__row">
                 <div className="game-card__emoji">{g.icon}</div>
                 <div className="game-card__meta">
