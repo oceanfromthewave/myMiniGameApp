@@ -32,7 +32,7 @@ export default function BrickBreakerGame({ onBack }) {
   const startHold = React.useCallback((dir) => {
     stopHold()
     movePaddle(dir) // 즉시 1회
-    holdRef.current = setInterval(() => movePaddle(dir), 24) // 약 40fps
+    holdRef.current = setInterval(() => movePaddle(dir), 8) // 약 40fps
   }, [movePaddle, stopHold])
 
   React.useEffect(() => () => stopHold(), [stopHold])
