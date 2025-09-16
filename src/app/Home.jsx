@@ -64,7 +64,8 @@ export default function Home({ onSelect }) {
           <div className="mt-2">
             <Leaderboard game={lbGame} compact />
           </div>
-          <div className="row-center mt-2">
+
+          <div className="lb-actions row-center">
             <button className="btn btn--ghost" onClick={() => setShowLb(true)} aria-label="리더보드 전체 보기">
               <Trophy size={16} /> 전체보기
             </button>
@@ -72,13 +73,17 @@ export default function Home({ onSelect }) {
         </div>
 
         {canInstall && (
-          <div className="notice notice--info mt-6">
-            <div className="row-center">
-              <span className="mr-2">앱으로 설치하면 오프라인에서도 실행할 수 있어요.</span>
-              <button className="btn btn--primary" onClick={install} aria-label="앱 설치">설치</button>
-            </div>
-          </div>
-        )}
+  <div className="install-card">
+    <div className="install-icon">📲</div>
+    <div className="install-content">
+      <p className="title-md">앱으로 설치해 보세요</p>
+      <p className="muted-light">오프라인에서도 실행되고 더 빠릅니다.</p>
+    </div>
+    <button className="btn btn--primary btn--pill" onClick={install} aria-label="앱 설치">
+      설치
+    </button>
+  </div>
+)}
 
         <div className="home-footer mt-12">
           <p className="mb-2">더 많은 게임을 추가할게요</p>
