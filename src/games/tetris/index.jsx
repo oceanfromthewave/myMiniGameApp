@@ -29,6 +29,19 @@ export default function TetrisGame({ onBack }) {
     if (!isPaused) togglePause()
   })
 
+  // press & hold (모바일/데스크톱 공통)
+  const holdRef = React.useRef(null)
+  const stopHold = React.useCallback(() => {
+    if (holdRef.current) { clearInterval(holdRef.current); holdRef.current = null }
+  }, [])
+  const startHold = React.useCallback((dir) => {
+    stopHold()
+    movePiece(dir) // 즉시 1회
+    holdRef.current = setInterval(() => movePiece(dir), 40) // 40ms ≈ 25fps
+  }, [movePiece, stopHold])
+  React.useEffect(() => () => stopHold(), [stopHold])
+
+
   React.useEffect(() => {
     const onKey = (e) => {
       if (['ArrowLeft', 'ArrowRight', 'ArrowDown', 'ArrowUp'].includes(e.key)) {
@@ -94,9 +107,39 @@ export default function TetrisGame({ onBack }) {
             <button className="btn btn--blue btn--wide" onClick={() => movePiece('rotate')} aria-label="블록 회전">회전</button>
           </div>
           <div className="grid-3">
-            <button className="btn btn--square" onClick={() => movePiece('left')} aria-label="왼쪽으로 이동">←</button>
-            <button className="btn btn--danger btn--square" onClick={() => movePiece('down')} aria-label="아래로 이동">↓</button>
-            <button className="btn btn--square" onClick={() => movePiece('right')} aria-label="오른쪽으로 이동">→</button>
+            <button
+              className="btn btn--square"
+              onClick={() => movePiece('left')}
+              onMouseDown={() => startHold('left')}
+              onMouseUp={stopHold}
+              onMouseLeave={stopHold}
+              onTouchStart={(e) => { e.preventDefault(); startHold('left') }}
+              onTouchEnd={stopHold}
+              onTouchCancel={stopHold}
+              aria-label="왼쪽으로 이동"
+            >←</button>
+            <button
+              className="btn btn--danger btn--square"
+              onClick={() => movePiece('down')}
+              onMouseDown={() => startHold('down')}
+              onMouseUp={stopHold}
+              onMouseLeave={stopHold}
+              onTouchStart={(e) => { e.preventDefault(); startHold('down') }}
+              onTouchEnd={stopHold}
+              onTouchCancel={stopHold}
+              aria-label="아래로 이동"
+            >↓</button>
+            <button
+              className="btn btn--square"
+              onClick={() => movePiece('right')}
+              onMouseDown={() => startHold('right')}
+              onMouseUp={stopHold}
+              onMouseLeave={stopHold}
+              onTouchStart={(e) => { e.preventDefault(); startHold('right') }}
+              onTouchEnd={stopHold}
+              onTouchCancel={stopHold}
+              aria-label="오른쪽으로 이동"
+            >→</button>
           </div>
         </div>
 
