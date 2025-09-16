@@ -24,6 +24,19 @@ export default function BrickBreakerGame({ onBack }) {
 
   useVisibilityPause(() => { if (!isPaused) togglePause() })
 
+  // Press & hold 이동
+  const holdRef = React.useRef(null)
+  const stopHold = React.useCallback(() => {
+    if (holdRef.current) { clearInterval(holdRef.current); holdRef.current = null }
+  }, [])
+  const startHold = React.useCallback((dir) => {
+    stopHold()
+    movePaddle(dir) // 즉시 1회
+    holdRef.current = setInterval(() => movePaddle(dir), 24) // 약 40fps
+  }, [movePaddle, stopHold])
+
+  React.useEffect(() => () => stopHold(), [stopHold])
+
   React.useEffect(() => {
     if (!gameOver || savedRef.current) return
     savedRef.current = true
@@ -85,10 +98,30 @@ export default function BrickBreakerGame({ onBack }) {
           </div>
         )}
 
-        <div className="mb-4">
+<div className="mb-4">
           <div className="grid-2">
-            <button className="btn btn--square" onClick={() => movePaddle('left')} aria-label="왼쪽으로 이동">←</button>
-            <button className="btn btn--square" onClick={() => movePaddle('right')} aria-label="오른쪽으로 이동">→</button>
+            <button
+              className="btn btn--square"
+              onClick={() => movePaddle('left')}
+              onMouseDown={() => startHold('left')}
+              onMouseUp={stopHold}
+              onMouseLeave={stopHold}
+              onTouchStart={(e) => { e.preventDefault(); startHold('left') }}
+              onTouchEnd={stopHold}
+              onTouchCancel={stopHold}
+              aria-label="왼쪽으로 이동"
+            >←</button>
+            <button
+              className="btn btn--square"
+              onClick={() => movePaddle('right')}
+              onMouseDown={() => startHold('right')}
+              onMouseUp={stopHold}
+              onMouseLeave={stopHold}
+              onTouchStart={(e) => { e.preventDefault(); startHold('right') }}
+              onTouchEnd={stopHold}
+              onTouchCancel={stopHold}
+              aria-label="오른쪽으로 이동"
+            >→</button>
           </div>
         </div>
 
