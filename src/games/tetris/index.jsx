@@ -1,4 +1,4 @@
-import React from 'react'
+﻿import React from 'react'
 import GameHeader from '../../components/layout/GameHeader'
 import useTetris from './useTetris'
 import useVisibilityPause from '../../hooks/useVisibilityPause'
@@ -29,18 +29,53 @@ export default function TetrisGame({ onBack }) {
     if (!isPaused) togglePause()
   })
 
-  // press & hold (모바일/데스크톱 공통)
-  const holdRef = React.useRef(null)
+  // press & hold
+  const HOLD_DAS = 140
+  const HOLD_REPEAT_SIDE = 85
+  const HOLD_REPEAT_DOWN_BASE = 140
+  const HOLD_REPEAT_DOWN_MIN = 40
+
+  const holdTimers = React.useRef({ timeout: null, interval: null })
+
   const stopHold = React.useCallback(() => {
-    if (holdRef.current) { clearInterval(holdRef.current); holdRef.current = null }
+    const { timeout, interval } = holdTimers.current
+    if (timeout) clearTimeout(timeout)
+    if (interval) clearInterval(interval)
+    holdTimers.current = { timeout: null, interval: null }
   }, [])
+
   const startHold = React.useCallback((dir) => {
     stopHold()
-    movePiece(dir) // 즉시 1회
-    holdRef.current = setInterval(() => movePiece(dir), 40) // 40ms ≈ 25fps
-  }, [movePiece, stopHold])
-  React.useEffect(() => () => stopHold(), [stopHold])
+    movePiece(dir)
 
+    const repeatDelay =
+      dir === 'down'
+        ? Math.max(HOLD_REPEAT_DOWN_MIN, HOLD_REPEAT_DOWN_BASE - level * 10)
+        : HOLD_REPEAT_SIDE
+
+    const timeout = setTimeout(() => {
+      const interval = setInterval(() => movePiece(dir), repeatDelay)
+      holdTimers.current.interval = interval
+    }, HOLD_DAS)
+
+    holdTimers.current.timeout = timeout
+  }, [level, movePiece, stopHold])
+
+  const onHoldDown = React.useCallback((dir) => (e) => {
+    e.preventDefault()
+    e.currentTarget.setPointerCapture?.(e.pointerId)
+    startHold(dir)
+  }, [startHold])
+
+  const onHoldUp = React.useCallback((e) => {
+    e.preventDefault()
+    stopHold()
+    e.currentTarget.releasePointerCapture?.(e.pointerId)
+  }, [stopHold])
+
+  // 마운트/일시정지/게임오버 안전 해제 처리
+  React.useEffect(() => () => stopHold(), [stopHold])
+  React.useEffect(() => { if (isPaused || gameOver) stopHold() }, [isPaused, gameOver, stopHold])
 
   React.useEffect(() => {
     const onKey = (e) => {
@@ -108,36 +143,27 @@ export default function TetrisGame({ onBack }) {
           </div>
           <div className="grid-3">
             <button
-              className="btn btn--square"
+              className="btn btn--square btn-hold"
               onClick={() => movePiece('left')}
-              onMouseDown={() => startHold('left')}
-              onMouseUp={stopHold}
-              onMouseLeave={stopHold}
-              onTouchStart={(e) => { e.preventDefault(); startHold('left') }}
-              onTouchEnd={stopHold}
-              onTouchCancel={stopHold}
+              onPointerDown={onHoldDown('left')}
+              onPointerUp={onHoldUp}
+              onPointerCancel={onHoldUp}
               aria-label="왼쪽으로 이동"
             >←</button>
             <button
-              className="btn btn--danger btn--square"
+              className="btn btn--danger btn--square btn-hold"
               onClick={() => movePiece('down')}
-              onMouseDown={() => startHold('down')}
-              onMouseUp={stopHold}
-              onMouseLeave={stopHold}
-              onTouchStart={(e) => { e.preventDefault(); startHold('down') }}
-              onTouchEnd={stopHold}
-              onTouchCancel={stopHold}
+              onPointerDown={onHoldDown('down')}
+              onPointerUp={onHoldUp}
+              onPointerCancel={onHoldUp}
               aria-label="아래로 이동"
             >↓</button>
             <button
-              className="btn btn--square"
+              className="btn btn--square btn-hold"
               onClick={() => movePiece('right')}
-              onMouseDown={() => startHold('right')}
-              onMouseUp={stopHold}
-              onMouseLeave={stopHold}
-              onTouchStart={(e) => { e.preventDefault(); startHold('right') }}
-              onTouchEnd={stopHold}
-              onTouchCancel={stopHold}
+              onPointerDown={onHoldDown('right')}
+              onPointerUp={onHoldUp}
+              onPointerCancel={onHoldUp}
               aria-label="오른쪽으로 이동"
             >→</button>
           </div>
@@ -152,7 +178,7 @@ export default function TetrisGame({ onBack }) {
             <div className="notice notice--danger">
               <h2 className="title-xl mb-2">게임 오버!</h2>
               <p>최종 점수: {score}</p>
-              <p>클리어한 라인: {lines}</p>
+              <p>지운 라인: {lines}</p>
             </div>
           </div>
         )}
@@ -166,14 +192,13 @@ export default function TetrisGame({ onBack }) {
         )}
 
         <div className="info-box">
-          <p className="mb-2">조작법</p>
-          <p>← →: 좌우 이동</p>
-          <p>↓: 빠른 하강</p>
-          <p>회전: 블록 회전</p>
-          <p className="mt-2 muted-light">목표: 빈칸이 없도록 채워보세요!</p>
+          <p className="mb-2">조작</p>
+          <p>← → 좌우 이동</p>
+          <p>↓ 빠른 하강</p>
+          <p>↑ 회전</p>
+          <p className="mt-2 muted-light">목표: 빈칸 없이 채워보세요</p>
         </div>
       </div>
     </div>
   )
 }
-

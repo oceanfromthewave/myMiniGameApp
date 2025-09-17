@@ -200,42 +200,41 @@ export default function useTetris() {
 
   const movePiece = useCallback(
     (action) => {
-      if (gameOver || isPaused || isClearing || !currentPiece) return;
+      if (gameOver || isPaused || isClearing) return;
 
-      if (action === "left" || action === "right") {
-        const dx = action === "left" ? -1 : 1;
-        const next = { ...currentPiece, x: currentPiece.x + dx };
-        if (canPlacePiece(next, board)) setCurrentPiece(next);
-        return;
-      }
+      setCurrentPiece((prev) => {
+        if (!prev) return prev;
 
-      if (action === "down") {
-        const next = { ...currentPiece, y: currentPiece.y + 1 };
-        if (canPlacePiece(next, board)) setCurrentPiece(next);
-        else lockPiece(currentPiece);
-        return;
-      }
+        if (action === "left" || action === "right") {
+          const dx = action === "left" ? -1 : 1;
+          const next = { ...prev, x: prev.x + dx };
+          return canPlacePiece(next, board) ? next : prev;
+        }
 
-      if (action === "rotate") {
-        const rotated = rotateMatrix(currentPiece.shape);
-        const kicks = [0, -1, 1, -2, 2];
-        let placed = null;
-        for (const k of kicks) {
-          const candidate = {
-            ...currentPiece,
-            shape: rotated,
-            x: currentPiece.x + k,
-          };
-          if (canPlacePiece(candidate, board)) {
-            placed = candidate;
-            break;
+        if (action === "down") {
+          const next = { ...prev, y: prev.y + 1 };
+          if (canPlacePiece(next, board)) return next;
+          lockPiece(prev);
+          return null;
+        }
+
+        if (action === "rotate") {
+          const rotated = rotateMatrix(prev.shape);
+          const kicks = [0, -1, 1, -2, 2];
+          for (const k of kicks) {
+            const candidate = {
+              ...prev,
+              shape: rotated,
+              x: prev.x + k,
+            };
+            if (canPlacePiece(candidate, board)) return candidate;
           }
         }
-        if (placed) setCurrentPiece(placed);
-        return;
-      }
+
+        return prev;
+      });
     },
-    [board, currentPiece, gameOver, isPaused, canPlacePiece, lockPiece]
+    [board, gameOver, isPaused, isClearing, canPlacePiece, lockPiece]
   );
 
   const togglePause = useCallback(() => setIsPaused((p) => !p), []);

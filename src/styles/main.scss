@@ -573,10 +573,11 @@ body {
 .tcell-7 { background: #3b82f6; box-shadow: 0 0 8px rgba(59, 130, 246, 0.55); }
 
 .tcell-blink {
-  filter: brightness(1.8) saturate(1.25);
-  box-shadow:
-    inset 0 0 8px rgba(255, 255, 255, 0.25),
-    0 0 10px rgba(255, 255, 255, 0.25);
+  /* 라인 삭제 애니메이션 동안 강한 점멸 효과 */
+  opacity: 0; /* 반짝임 단계에서 셀을 숨김 */
+  filter: none;
+  box-shadow: none;
+  transition: opacity 40ms linear;
 }
 
 /* Notices */
@@ -886,4 +887,11 @@ body {
 .lb-actions {
   margin-top: 16px;   /* 리더보드와 간격 */
   margin-bottom: 12px;/* 아래 PWA 카드와 간격 */
+}
+
+.btn-hold {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
